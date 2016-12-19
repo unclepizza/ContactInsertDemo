@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="example.gk.com.contactinsertdemo.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <Button
+        android:text="Insert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button4"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:onClick="insert"/>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="del"
+        android:text="Del"
+        android:layout_below="@+id/button4"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="13dp" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="sync"
+        android:text="Sync"
+        android:layout_marginTop="13dp"
+        android:layout_below="@+id/button2"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/tv_contact_man"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lineSpacingMultiplier="1.5"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbars="vertical"
+        android:text="Hello World!"
+        android:textSize="18sp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/button"
+        android:layout_alignParentStart="true" />
+</RelativeLayout>
