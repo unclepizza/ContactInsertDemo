@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.provider.ContactsContract.Data;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -43,8 +42,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                update("智行火车票", "123456");
-//                syncContactMen();
+                syncContactMen();
             }
         }).start();
     }
@@ -165,25 +163,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void update(String name, String number) {
-        Cursor cursor = getContentResolver().query(Data.CONTENT_URI, new String[]{Data.RAW_CONTACT_ID}, ContactsContract.Contacts.DISPLAY_NAME + "=?", new String[]{"周杰伦"}, null);
-        cursor.moveToFirst();
-        String id = cursor.getString(cursor.getColumnIndex(Data.RAW_CONTACT_ID));
-        cursor.close();
-        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-
-//        //更新名字
-        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + " = " +
-                "?", new String[]{String.valueOf(id), ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE}).withValue(ContactsContract.CommonDataKinds
-                .StructuredName.DISPLAY_NAME, name).build());
-        //更新电话
-        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + " = " +
-                "?" + " AND " + Phone.TYPE + "=?", new String[]{String.valueOf(id), Phone.CONTENT_ITEM_TYPE, String.valueOf(Phone.TYPE_HOME)}).withValue(Phone.NUMBER, number)
-                .build());
-
-        try {
-            getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-        } catch (Exception e) {
-        }
-    }
+//    private void update(String name, String number) {
+//        Cursor cursor = getContentResolver().query(Data.CONTENT_URI, new String[]{Data.RAW_CONTACT_ID}, ContactsContract.Contacts.DISPLAY_NAME + "=?", new String[]{"周杰伦"}, null);
+//        cursor.moveToFirst();
+//        String id = cursor.getString(cursor.getColumnIndex(Data.RAW_CONTACT_ID));
+//        cursor.close();
+//        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+//
+////        //更新名字
+//        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + " = " +
+//                "?", new String[]{String.valueOf(id), ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE}).withValue(ContactsContract.CommonDataKinds
+//                .StructuredName.DISPLAY_NAME, name).build());
+//        //更新电话
+//        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + " = " +
+//                "?" + " AND " + Phone.TYPE + "=?", new String[]{String.valueOf(id), Phone.CONTENT_ITEM_TYPE, String.valueOf(Phone.TYPE_HOME)}).withValue(Phone.NUMBER, number)
+//                .build());
+//
+//        try {
+//            getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+//        } catch (Exception e) {
+//        }
+//    }
 }
