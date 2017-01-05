@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Data;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -29,16 +30,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initToolbar();
+        tvContatMen = (TextView) findViewById(R.id.tv_contact_man);
+    }
+
+    private void initToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        tvContatMen = (TextView) findViewById(R.id.tv_contact_man);
     }
 
     public void sync(View v) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                syncContactMen();
+                update("智行火车票", "123456");
+//                syncContactMen();
             }
         }).start();
     }
@@ -83,8 +89,7 @@ public class MainActivity extends AppCompatActivity {
         values.put(RAW_CONTACT_ID, rawContactId);
         values.put(MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE);
         values.put(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, name);
-        getContentResolver().insert(
-                android.provider.ContactsContract.Data.CONTENT_URI, values);
+        getContentResolver().insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
 
         //往data表入电话数据
         values.clear();
@@ -94,8 +99,7 @@ public class MainActivity extends AppCompatActivity {
             values.put(Phone.NUMBER, number);
             values.put(Phone.TYPE, Phone.TYPE_MOBILE);
             try {
-                getContentResolver().insert(
-                        android.provider.ContactsContract.Data.CONTENT_URI, values);
+                getContentResolver().insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
             } catch (Exception e) {
                 Toast.makeText(this, "Insert error!", Toast.LENGTH_SHORT).show();
                 return;
@@ -118,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
             String contactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
             String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             sb.append(name).append("\t");
-            Cursor phoneC = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+            Cursor phoneC = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " +
+                    contactId, null, null);
             while (phoneC.moveToNext()) {
                 String phoneNumber = phoneC.getString(phoneC.getColumnIndex("data1"));
                 sb.append(phoneNumber).append("\n");
@@ -136,14 +141,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteZX() {
-        Cursor cursor = getContentResolver().query(android.provider.ContactsContract.Data.CONTENT_URI, new String[]{RAW_CONTACT_ID},
-                ContactsContract.Contacts.DISPLAY_NAME + "=?", new String[]{name}, null);
+        Cursor cursor = getContentResolver().query(android.provider.ContactsContract.Data.CONTENT_URI, new String[]{RAW_CONTACT_ID}, ContactsContract.Contacts.DISPLAY_NAME +
+                "=?", new String[]{name}, null);
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
         if (cursor.moveToFirst()) {
             do {
                 long Id = cursor.getLong(cursor.getColumnIndex(RAW_CONTACT_ID));
-                ops.add(ContentProviderOperation.newDelete(
-                        ContentUris.withAppendedId(ContactsContract.RawContacts.CONTENT_URI, Id)).build());
+                ops.add(ContentProviderOperation.newDelete(ContentUris.withAppendedId(ContactsContract.RawContacts.CONTENT_URI, Id)).build());
                 try {
                     getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
                 } catch (Exception e) {
@@ -159,5 +163,27 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Delete successfully!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void update(String name, String number) {
+        Cursor cursor = getContentResolver().query(Data.CONTENT_URI, new String[]{Data.RAW_CONTACT_ID}, ContactsContract.Contacts.DISPLAY_NAME + "=?", new String[]{"周杰伦"}, null);
+        cursor.moveToFirst();
+        String id = cursor.getString(cursor.getColumnIndex(Data.RAW_CONTACT_ID));
+        cursor.close();
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+//        //更新名字
+        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + " = " +
+                "?", new String[]{String.valueOf(id), ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE}).withValue(ContactsContract.CommonDataKinds
+                .StructuredName.DISPLAY_NAME, name).build());
+        //更新电话
+        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + "=?" + " AND " + ContactsContract.Data.MIMETYPE + " = " +
+                "?" + " AND " + Phone.TYPE + "=?", new String[]{String.valueOf(id), Phone.CONTENT_ITEM_TYPE, String.valueOf(Phone.TYPE_HOME)}).withValue(Phone.NUMBER, number)
+                .build());
+
+        try {
+            getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+        } catch (Exception e) {
+        }
     }
 }
